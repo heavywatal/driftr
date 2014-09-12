@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 library(shiny)
 library(plyr)
+library(dplyr)
+library(pipeR)
 library(ggplot2)
 
 simulate = function(N, p, s, generations) {
