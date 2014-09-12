@@ -3,13 +3,35 @@ library(shiny)
 library(plyr)
 library(ggplot2)
 
-simulate = function(N, s, p, generations) {
+simulate = function(N, p, s, generations) {
     freq = p
     for (i in seq_len(generations - 1)) {
         p = rbinom(1, N, min((1 + s) * p, 1)) / N
         freq = c(freq, p)
     }
     data.frame(time=seq_len(generations), freq=freq)
+}
+
+dbinom_selection = function(x, size, prob, s=0) {
+    choose(size, x) * (1 - prob)^(size - x) * ((1 + s) * prob)^x / (1 + s * prob)^size
+}
+
+distribution = function(N, i, s, generations) {
+    prob = numeric(N + 1)
+    prob[i+1] = 1
+    x = seq(0, N)
+
+    evolve = function() {
+        sapply(x, function(.k) {
+            sum(dbinom_selection(.k, N, x / N, s) * prob)
+        })
+    }
+
+    env = environment()
+    ldply(seq_len(generations), function(time) {
+        assign('prob', evolve(), env=env)
+        data.frame(time, freq=(seq_along(prob) - 1)/N, probability=prob)
+    })
 }
 
 locale = 'ja'
@@ -27,13 +49,20 @@ shinyServer(function(input, output) {
     isolate({
         .data = rdply(input$replications,
                     simulate(input$popsize,
-                        input$selection,
                         input$frequency,
+                        input$selection,
                         input$generations))
-        .p = ggplot(.data, aes(time, freq, group=.n)) +
-            geom_line(alpha=0.5) +
-            ylim(c(0, 1)) +
-            coord_cartesian(c(0, input$generations)) +
+#        .prob = distribution(input$popsize,
+#                        input$frequency * input$popsize,
+#                        input$selection,
+#                        input$generations)
+        .p = ggplot(.data, aes(time, freq))+
+#            geom_tile(data=.prob, aes(time, freq, fill=(probability)))+
+#            scale_fill_gradientn(colours=c('#FFFFFF', '#009999'))+
+            geom_line(alpha=0.5, aes(group=.n))+
+            theme_bw()+
+            theme(panel.background=element_blank(), panel.grid=element_blank())+
+            coord_cartesian(c(0, input$generations), c(0, 1))+
             labs(x='Time (generations)', y='Frequency')
         .p
     })

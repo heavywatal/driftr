@@ -24,7 +24,7 @@ shinyUI(pageWithSidebar(
     sliderInput('selection', tr('Selection coefficient (s):'),
                 0.01, min=-0.02, max=0.02, step=0.001),
     sliderInput('frequency', tr('Initial frequency (p):'),
-                0.1, min=0.0, max=1.0, step=0.05),
+                0.1, min=0.0, max=0.5, step=0.02),
     sliderInput('generations', tr('Observation period:'),
                 100, min=50, max=400, step=50),
     sliderInput('replications', tr('Number of replicates:'),
