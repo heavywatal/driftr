@@ -30,8 +30,15 @@ distribution = function(N, i, s, generations) {
     env = environment()
     ldply(seq_len(generations), function(time) {
         assign('prob', evolve(), env=env)
-        data.frame(time, freq=(seq_along(prob) - 1)/N, probability=prob)
-    })
+        data.frame(time, freq=(seq_along(prob) - 1)/N, probability=prob) %>>%
+            mutate(bin=cut(freq, breaks=23)) %>>%
+            group_by(time, bin) %>>%
+            summarize(freq=mean(freq), probability=sum(probability)) %>>%
+            ungroup()
+    }) %>>%
+        mutate(timebin=cut(time, breaks=25)) %>>%
+        group_by(timebin, freq) %>>%
+        summarize(time=mean(time), probability=mean(probability))
 }
 
 locale = 'ja'
@@ -52,14 +59,16 @@ shinyServer(function(input, output) {
                         input$frequency,
                         input$selection,
                         input$generations))
-#        .prob = distribution(input$popsize,
-#                        input$frequency * input$popsize,
-#                        input$selection,
-#                        input$generations)
-        .p = ggplot(.data, aes(time, freq))+
-#            geom_tile(data=.prob, aes(time, freq, fill=(probability)))+
-#            scale_fill_gradientn(colours=c('#FFFFFF', '#009999'))+
-            geom_line(alpha=0.5, aes(group=.n))+
+        .p = ggplot(.data, aes(time, freq))
+        if (input$predict) {
+            .prob = distribution(input$popsize,
+                        input$frequency * input$popsize,
+                        input$selection,
+                        input$generations)
+            .p = .p + geom_tile(data=.prob, aes(time, freq, fill=sqrt(probability)))+
+                      scale_fill_gradientn(colours=c('#FFFFFF', '#009999'))
+        }
+        .p = .p + geom_line(alpha=0.5, aes(group=.n))+
             theme_bw()+
             theme(panel.background=element_blank(), panel.grid=element_blank())+
             coord_cartesian(c(0, input$generations), c(0, 1))+

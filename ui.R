@@ -6,7 +6,8 @@ ja = c(
     'Selection coefficient' = '選択係数',
     'Initial frequency' = '初期頻度',
     'Observation period' = '観察期間',
-    'Number of replicates' = '反復試行数'
+    'Number of replicates' = '反復試行数',
+    'Probability density' = '確率密度'
     )
 
 tr = function(x, map=ja) {
@@ -29,6 +30,7 @@ shinyUI(pageWithSidebar(
                 100, min=50, max=400, step=50),
     sliderInput('replications', tr('Number of replicates:'),
                 20, min=10, max=50, step=10),
+    checkboxInput('predict', tr('Probability density')),
     actionButton('go', 'Go!', icon('play'))
   ),
   mainPanel(
