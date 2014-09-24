@@ -4,11 +4,13 @@ Shiny app for genetic drift simulation
 Run `driftr` on ShinyApps.io server
 --------------------------------------------------------------------------------
 
-http://heavywatal.shinyapps.io/driftr
+1. Go to http://heavywatal.shinyapps.io/driftr
 
 
 Run `driftr` on your computer
 --------------------------------------------------------------------------------
+
+1. Launch [R](http://cran.rstudio.com/)
 
 1. Install prerequisite packages.
 
@@ -34,6 +36,6 @@ Run `driftr` on your computer
 
   Or specify manually downloaded folder.
 
-  ```
+  ```r
   runApp('~/Downloads/driftr')
   ```
