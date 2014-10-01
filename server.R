@@ -8,7 +8,7 @@ library(ggplot2)
 simulate = function(N, p, s, generations) {
     freq = p
     for (i in seq_len(generations - 1)) {
-        p = rbinom(1, N, min((1 + s) * p, 1)) / N
+        p = rbinom(1, N, min((1 + s) * p / (1 + s * p), 1)) / N
         freq = c(freq, p)
     }
     data.frame(time=seq_len(generations), freq=freq)
